@@ -1,0 +1,309 @@
+<title>Жива листівка</title>
+<style>
+  :root{
+    --bg:#11190e;
+    --surface:#1c2717;
+    --ink:#f5eedb;
+    --ink-dim:#c3b9a0;
+    --gold:#dfae57;
+    --gold-soft:#f0cd85;
+    --sienna:#b6602f;
+    --ring: color-mix(in srgb, var(--gold) 55%, transparent);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope', system-ui, -apple-system, sans-serif;
+    overflow:hidden;
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .stage{
+    position:relative;
+    height:100%;
+    max-width:520px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .frame{
+    position:relative;
+    width:100%;
+    height:100%;
+    max-height:100%;
+    aspect-ratio:708/1264;
+    border-radius:22px;
+    overflow:hidden;
+    background:var(--surface);
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.75), 0 0 0 1px rgba(223,174,87,0.14);
+  }
+
+  /* on very short/wide viewports, let height lead instead of width */
+  @media (max-aspect-ratio: 708/1264){
+    .frame{ width:100%; height:auto; }
+  }
+  @media (min-aspect-ratio: 708/1264){
+    .frame{ height:100%; width:auto; }
+  }
+
+  video, .poster-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .scrim-top, .scrim-bottom{
+    position:absolute;
+    left:0; right:0;
+    pointer-events:none;
+    z-index:1;
+  }
+  .scrim-top{
+    top:0; height:26%;
+    background:linear-gradient(to bottom, rgba(10,14,8,0.5), rgba(10,14,8,0));
+  }
+  .scrim-bottom{
+    bottom:0; height:30%;
+    background:linear-gradient(to top, rgba(8,11,6,0.6), rgba(8,11,6,0));
+  }
+
+  /* ---------- falling leaves + drifting light ---------- */
+  .leaves{
+    position:absolute; inset:0;
+    z-index:3;
+    pointer-events:none;
+    overflow:hidden;
+  }
+
+  .leaf-fall{
+    position:absolute;
+    top:-10%;
+    animation-name:fall;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,0.25));
+  }
+  .leaf{
+    display:block;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+    animation-direction:alternate;
+  }
+
+  /* three leaf silhouettes for a little botanical variety */
+  .shape-a{ border-radius:0 60% 0 60%; }
+  .shape-b{ border-radius:50% 0 50% 0; }
+  .shape-c{ border-radius:50%; clip-path:polygon(50% 0%, 100% 45%, 78% 100%, 22% 100%, 0% 45%); }
+
+  .lf1{ left:8%;  animation-duration:12s; animation-delay:0s;   }
+  .lf2{ left:82%; animation-duration:15s; animation-delay:3.5s; }
+  .lf3{ left:38%; animation-duration:17s; animation-delay:7s;   }
+  .lf4{ left:60%; animation-duration:13s; animation-delay:1.8s; }
+  .lf5{ left:22%; animation-duration:16s; animation-delay:9.5s; }
+  .lf6{ left:70%; animation-duration:14s; animation-delay:5.5s; }
+
+  .lf1 .leaf{ width:9px;  height:9px;  background:var(--gold);      opacity:.6;  animation-name:sway-a; animation-duration:2.6s; }
+  .lf2 .leaf{ width:12px; height:12px; background:var(--sienna);    opacity:.55; animation-name:sway-b; animation-duration:3.4s; }
+  .lf3 .leaf{ width:7px;  height:7px;  background:var(--gold-soft); opacity:.65; animation-name:sway-a; animation-duration:2.1s; }
+  .lf4 .leaf{ width:10px; height:8px;  background:var(--gold);      opacity:.5;  animation-name:sway-c; animation-duration:3s;   }
+  .lf5 .leaf{ width:8px;  height:8px;  background:var(--sienna);    opacity:.6;  animation-name:sway-b; animation-duration:2.8s; }
+  .lf6 .leaf{ width:11px; height:9px;  background:var(--gold-soft); opacity:.5;  animation-name:sway-c; animation-duration:2.3s; }
+
+  @keyframes fall{
+    to{ transform:translateY(130vh); }
+  }
+  @keyframes sway-a{
+    from{ transform:translateX(-13px) rotate(-10deg); }
+    to{   transform:translateX(13px)  rotate(55deg);  }
+  }
+  @keyframes sway-b{
+    from{ transform:translateX(16px)  rotate(20deg);  }
+    to{   transform:translateX(-16px) rotate(-70deg); }
+  }
+  @keyframes sway-c{
+    from{ transform:translateX(-9px) rotate(0deg);   }
+    to{   transform:translateX(9px)  rotate(140deg); }
+  }
+
+  /* small drifting motes of light, for a touch of quiet magic */
+  .spark{
+    position:absolute;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--gold-soft), transparent 70%);
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+    animation-direction:alternate;
+  }
+  .sp1{ left:18%; top:22%; width:5px; height:5px; animation-name:drift-a, twinkle; animation-duration:7s, 3.2s; }
+  .sp2{ left:76%; top:34%; width:4px; height:4px; animation-name:drift-b, twinkle; animation-duration:8.5s, 4s; }
+  .sp3{ left:55%; top:14%; width:6px; height:6px; animation-name:drift-a, twinkle; animation-duration:6s, 3.6s; }
+
+  @keyframes drift-a{ from{ transform:translate(0,0); } to{ transform:translate(16px,-18px); } }
+  @keyframes drift-b{ from{ transform:translate(0,0); } to{ transform:translate(-14px,20px); } }
+  @keyframes twinkle{ 0%{ opacity:.15; } 100%{ opacity:.7; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .leaf-fall, .leaf, .spark{ animation:none; display:none; }
+  }
+
+  /* ---------- tap-to-play ---------- */
+  .cta{
+    position:absolute;
+    left:0; right:0;
+    bottom:0;
+    z-index:4;
+    padding: 0 26px calc(52px + env(safe-area-inset-bottom, 0px));
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+
+  .headline{
+    font-family:'Fraunces', Georgia, serif;
+    font-optical-sizing:auto;
+    font-weight:560;
+    font-size:clamp(20px, 5.6vw, 27px);
+    line-height:1.25;
+    text-wrap:balance;
+    color:var(--ink);
+    text-align:center;
+    margin:0;
+  }
+
+  .play-wrap{
+    position:relative;
+    width:78px; height:78px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ring{
+    position:absolute; inset:0;
+    border-radius:50%;
+    border:1.5px solid var(--ring);
+    animation:pulse 2.6s ease-out infinite;
+  }
+  .ring.d2{ animation-delay:.9s; }
+  @keyframes pulse{
+    0%{ transform:scale(0.72); opacity:.9; }
+    80%{ opacity:0; }
+    100%{ transform:scale(1.55); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ring{ animation:none; opacity:0; }
+  }
+
+  .play-btn{
+    position:relative;
+    z-index:1;
+    width:62px; height:62px;
+    border-radius:50%;
+    border:none;
+    background:radial-gradient(circle at 33% 30%, var(--gold-soft), var(--gold) 62%, var(--sienna) 130%);
+    box-shadow:0 10px 24px -8px rgba(0,0,0,0.55);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .play-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+  .play-btn svg{ width:22px; height:22px; transform:translateX(2px); }
+  .play-btn.is-replay svg{ transform:none; width:20px; height:20px; }
+
+  .overlay{
+    position:absolute; inset:0;
+    z-index:5;
+    background:rgba(10,13,7,0.22);
+    opacity:1;
+    transition:opacity .45s ease;
+  }
+  .overlay.hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .overlay.hidden .cta{ opacity:0; transition:opacity .45s ease; }
+
+  [hidden]{ display:none !important; }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+
+<div class="stage">
+  <div class="frame" id="frame">
+    <video
+      id="vid"
+      src="video.mp4"
+      poster="poster.jpg"
+      playsinline
+      webkit-playsinline
+      preload="auto"
+    ></video>
+
+    <div class="scrim-top"></div>
+    <div class="scrim-bottom"></div>
+
+    <div class="leaves" aria-hidden="true">
+      <span class="leaf-fall lf1"><span class="leaf shape-a"></span></span>
+      <span class="leaf-fall lf2"><span class="leaf shape-b"></span></span>
+      <span class="leaf-fall lf3"><span class="leaf shape-c"></span></span>
+      <span class="leaf-fall lf4"><span class="leaf shape-a"></span></span>
+      <span class="leaf-fall lf5"><span class="leaf shape-b"></span></span>
+      <span class="leaf-fall lf6"><span class="leaf shape-c"></span></span>
+      <span class="spark sp1"></span>
+      <span class="spark sp2"></span>
+      <span class="spark sp3"></span>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="cta">
+        <h1 class="headline">Торкніться,<br>щоб фотографія&nbsp;ожила</h1>
+        <div class="play-wrap">
+          <span class="ring"></span>
+          <span class="ring d2"></span>
+          <button class="play-btn" id="playBtn" aria-label="Відтворити">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5v15l14-7.5-14-7.5Z" fill="#241505"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var video = document.getElementById('vid');
+  var overlay = document.getElementById('overlay');
+  var btn = document.getElementById('playBtn');
+
+  function showOverlayAsReplay(){
+    btn.classList.add('is-replay');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 5V2L8 6l4 4V7c3.31 0 6 2.69 6 6a6 6 0 0 1-6 6 6 6 0 0 1-5.65-4H4.26A8 8 0 0 0 12 21a8 8 0 0 0 0-16Z" fill="#241505"/></svg>';
+    btn.setAttribute('aria-label','Переглянути ще раз');
+    overlay.classList.remove('hidden');
+  }
+
+  btn.addEventListener('click', function(){
+    try{
+      if (video.ended || video.paused){
+        video.currentTime = video.ended ? 0 : video.currentTime;
+        var p = video.play();
+        if (p && p.catch){ p.catch(function(){}); }
+      }
+    }catch(e){}
+    overlay.classList.add('hidden');
+  });
+
+  video.addEventListener('ended', showOverlayAsReplay);
+})();
+</script>
