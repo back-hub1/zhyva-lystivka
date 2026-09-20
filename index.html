@@ -304,11 +304,9 @@
     togglePlay();
   });
  
-  // tapping the video itself (while it's playing, overlay hidden) pauses it
+  // tapping anywhere on the frame toggles play/pause, same as the button
   frame.addEventListener('click', function(){
-    if (overlay.classList.contains('hidden')){
-      togglePlay();
-    }
+    togglePlay();
   });
  
   video.addEventListener('ended', function(){
@@ -317,3 +315,4 @@
   });
 })();
 </script>
+ 
